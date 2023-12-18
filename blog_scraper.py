@@ -65,7 +65,8 @@ class BlogScraper(object):
                         keyword: str,
                         from_date: int = 0,
                         to_date: int = 0,
-                        max_page: int = 10):
+                        max_page: int = 10,
+                        is_private: bool = False):
 
         cookies = self.COOKIES
         headers = self.HEADERS
@@ -84,7 +85,7 @@ class BlogScraper(object):
                                                 params=params,
                                                 cookies=cookies,
                                                 headers=headers,
-                                                proxies=self.PROXIES)
+                                                proxies=self.PROXIES if is_private else None)
             blog_search_response_html = BeautifulSoup(blog_search_response.text, 'html.parser')
             blog_search_results = blog_search_response_html.find_all('li', id=re.compile("blog"))
 
@@ -114,11 +115,14 @@ class BlogScraper(object):
                            from_date: int = 0,
                            to_date: int = 0,
                            max_page: int = 10,
-                           is_save: bool = True):
+                           is_save: bool = True,
+                           is_private: bool = False):
+        
         search_list = self.get_search_list(keyword=keyword,
                                            from_date=from_date,
                                            to_date=to_date,
-                                           max_page=max_page)
+                                           max_page=max_page,
+                                           is_private=is_private)
 
         cookies = self.COOKIES
         headers = self.HEADERS
@@ -140,7 +144,7 @@ class BlogScraper(object):
                                                  params=params,
                                                  cookies=cookies,
                                                  headers=headers,
-                                                 proxies=self.PROXIES)
+                                                 proxies=self.PROXIES if is_private else None)
                     blog_response_html = BeautifulSoup(blog_response.text, 'html.parser')
 
                     blog_text = self.get_blog_text(blog_response_html)
