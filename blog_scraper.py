@@ -13,9 +13,11 @@ from bs4 import BeautifulSoup
 class BlogScraper(object):
 
     def __init__(self):
-        if not os.path.exists("results"): 
-            os.makedirs("results")
-            
+        if not os.path.exists("results_excel"): os.makedirs("results_excel")
+        if not os.path.exists("results_csv"): os.makedirs("results_csv")
+        
+        self.PROXIES = {'http': 'http://84.1.0.151:3128',
+                        'https': 'http://84.1.0.151:3128'}
         self.TIMEZONE = pytz.timezone('Asia/Seoul')
         self.COOKIES = {
             'NNB': 'XSJGWOG5YCRGE',
@@ -81,7 +83,8 @@ class BlogScraper(object):
             blog_search_response = requests.get('https://search.naver.com/search.naver',
                                                 params=params,
                                                 cookies=cookies,
-                                                headers=headers)
+                                                headers=headers,
+                                                proxies=self.PROXIES)
             blog_search_response_html = BeautifulSoup(blog_search_response.text, 'html.parser')
             blog_search_results = blog_search_response_html.find_all('li', id=re.compile("blog"))
 
@@ -136,7 +139,8 @@ class BlogScraper(object):
                     blog_response = requests.get('https://blog.naver.com/PostView.naver',
                                                  params=params,
                                                  cookies=cookies,
-                                                 headers=headers)
+                                                 headers=headers,
+                                                 proxies=self.PROXIES)
                     blog_response_html = BeautifulSoup(blog_response.text, 'html.parser')
 
                     blog_text = self.get_blog_text(blog_response_html)
@@ -162,12 +166,14 @@ class BlogScraper(object):
 
         if is_save:
             if from_date != 0 and to_date != 0:
-                search_result.to_csv(f"results/blog_{keyword}_from_{from_date}_to_{to_date}.csv", encoding='utf-8', index=False)
+                search_result.to_excel(f"results_excel/blog_{keyword}_from_{from_date}_to_{to_date}.xlsx", index=False)
+                search_result.to_csv(f"results_csv/blog_{keyword}_from_{from_date}_to_{to_date}.csv", encoding='utf-8', index=False)
             else:
                 today = f"{datetime.now(self.TIMEZONE).year}" \
                         f"{datetime.now(self.TIMEZONE).month}" \
                         f"{datetime.now(self.TIMEZONE).day}"
-                search_result.to_csv(f"results/blog_{keyword}_til_{today}.csv", encoding='utf-8', index=False)
+                search_result.to_excel(f"results_excel/blog_{keyword}_til_{today}.xlsx", index=False)
+                search_result.to_csv(f"results_csv/blog_{keyword}_til_{today}.csv", encoding='utf-8', index=False)
         
         return search_result
 
